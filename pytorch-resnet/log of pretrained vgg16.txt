@@ -1,0 +1,160 @@
+Epoch 0/0
+--------------------
+train Loss: 0.7720 Acc: 0.4959
+val Loss: 1.0053 Acc: 0.4575
+Checkpoint 0 saved!
+
+Training complete in 0m 31s
+Best val Acc: 0.457516
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+
+C:\Users\cupofmocha\Documents\Masters Application\SJTU\pytorch-resnet>python train_vgg.py
+Epoch 0/0
+--------------------
+train Loss: 0.7140 Acc: 0.5902
+val Loss: 0.7298 Acc: 0.4771
+Checkpoint 0 saved!
+
+Training complete in 0m 29s
+Best val Acc: 0.477124
+tensor([1, 0, 1, 0], device='cuda:0')
+tensor([1, 0, 1, 0], device='cuda:0')
+tensor([1, 0, 1, 0], device='cuda:0')
+tensor([1, 0, 1, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+tensor([0, 0, 0, 0], device='cuda:0')
+
+C:\Users\cupofmocha\Documents\Masters Application\SJTU\pytorch-resnet>python train_vgg.py 
+Epoch 0/19
+--------------------
+train Loss: 0.7470 Acc: 0.5205
+val Loss: 0.6980 Acc: 0.4575
+Checkpoint 0 saved!
+
+Epoch 1/19
+--------------------
+train Loss: 0.7294 Acc: 0.4795
+val Loss: 0.6984 Acc: 0.4575
+Checkpoint 1 saved!
+
+Epoch 2/19
+--------------------
+train Loss: 0.6951 Acc: 0.5041
+val Loss: 0.6823 Acc: 0.4575
+Checkpoint 2 saved!
+
+Epoch 3/19
+--------------------
+train Loss: 0.6922 Acc: 0.5656
+val Loss: 0.6683 Acc: 0.6797
+Checkpoint 3 saved!
+
+Epoch 4/19
+--------------------
+train Loss: 0.6690 Acc: 0.5820
+val Loss: 0.5573 Acc: 0.7320
+Checkpoint 4 saved!
+
+Epoch 5/19
+--------------------
+train Loss: 0.6687 Acc: 0.5902
+val Loss: 0.6286 Acc: 0.7516
+Checkpoint 5 saved!
+
+Epoch 6/19
+--------------------
+train Loss: 1.0026 Acc: 0.6516
+val Loss: 0.6822 Acc: 0.5686
+Checkpoint 6 saved!
+
+Epoch 7/19
+--------------------
+train Loss: 0.6570 Acc: 0.6025
+val Loss: 0.6234 Acc: 0.7124
+Checkpoint 7 saved!
+
+Epoch 8/19
+--------------------
+train Loss: 0.6000 Acc: 0.7008
+val Loss: 0.5173 Acc: 0.8105
+Checkpoint 8 saved!
+
+Epoch 9/19
+--------------------
+train Loss: 0.4801 Acc: 0.7377
+val Loss: 0.4370 Acc: 0.8235
+Checkpoint 9 saved!
+
+Epoch 10/19
+--------------------
+train Loss: 0.5030 Acc: 0.7541
+val Loss: 0.4647 Acc: 0.8235
+Checkpoint 10 saved!
+
+Epoch 11/19
+--------------------
+train Loss: 0.5065 Acc: 0.7787
+val Loss: 0.4830 Acc: 0.7778
+Checkpoint 11 saved!
+
+Epoch 12/19
+--------------------
+train Loss: 0.4134 Acc: 0.8361
+val Loss: 0.4373 Acc: 0.8039
+Checkpoint 12 saved!
+
+Epoch 13/19
+--------------------
+train Loss: 0.3688 Acc: 0.8238
+val Loss: 0.3909 Acc: 0.8431
+Checkpoint 13 saved!
+
+Epoch 14/19
+--------------------
+train Loss: 0.2863 Acc: 0.8648
+val Loss: 0.3531 Acc: 0.8693
+Checkpoint 14 saved!
+
+Epoch 15/19
+--------------------
+train Loss: 0.2521 Acc: 0.9139
+val Loss: 0.3552 Acc: 0.8758
+Checkpoint 15 saved!
+
+Epoch 16/19
+--------------------
+train Loss: 0.2551 Acc: 0.8934
+val Loss: 0.3765 Acc: 0.8627
+Checkpoint 16 saved!
+
+Epoch 17/19
+--------------------
+train Loss: 0.2335 Acc: 0.9057
+val Loss: 0.3885 Acc: 0.8562
+Checkpoint 17 saved!
+
+Epoch 18/19
+--------------------
+train Loss: 0.2306 Acc: 0.9098
+val Loss: 0.3733 Acc: 0.8693
+Checkpoint 18 saved!
+
+Epoch 19/19
+--------------------
+train Loss: 0.2244 Acc: 0.9221
+val Loss: 0.3987 Acc: 0.8366
+Checkpoint 19 saved!
+
+Training complete in 8m 21s
+Best val Acc: 0.875817
+tensor([1, 1, 1, 0], device='cuda:0')
+tensor([1, 1, 1, 0], device='cuda:0')
+tensor([1, 1, 1, 0], device='cuda:0')
+tensor([1, 1, 1, 0], device='cuda:0')
+tensor([1, 0, 0, 1], device='cuda:0')
+tensor([1, 0, 0, 1], device='cuda:0')

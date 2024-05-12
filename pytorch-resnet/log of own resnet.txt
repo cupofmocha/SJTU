@@ -1,0 +1,122 @@
+Epoch 0/19
+--------------------
+train Loss: 0.7384 Acc: 0.4877
+val Loss: 1.1442 Acc: 0.5425
+Checkpoint 0 saved!
+
+Epoch 1/19
+--------------------
+train Loss: 0.7336 Acc: 0.5820
+val Loss: 0.7667 Acc: 0.5752
+Checkpoint 1 saved!
+
+Epoch 2/19
+--------------------
+train Loss: 0.6824 Acc: 0.6148
+val Loss: 0.7278 Acc: 0.6078
+Checkpoint 2 saved!
+
+Epoch 3/19
+--------------------
+train Loss: 0.6762 Acc: 0.5984
+val Loss: 0.7637 Acc: 0.5817
+Checkpoint 3 saved!
+
+Epoch 4/19
+--------------------
+train Loss: 0.6958 Acc: 0.5492
+val Loss: 0.6486 Acc: 0.6471
+Checkpoint 4 saved!
+
+Epoch 5/19
+--------------------
+train Loss: 0.6779 Acc: 0.6230
+val Loss: 0.9457 Acc: 0.6405
+Checkpoint 5 saved!
+
+Epoch 6/19
+--------------------
+train Loss: 0.6643 Acc: 0.6475
+val Loss: 0.8463 Acc: 0.6405
+Checkpoint 6 saved!
+
+Epoch 7/19
+--------------------
+train Loss: 0.6619 Acc: 0.6107
+val Loss: 0.7614 Acc: 0.6340
+Checkpoint 7 saved!
+
+Epoch 8/19
+--------------------
+train Loss: 0.6268 Acc: 0.6311
+val Loss: 0.7499 Acc: 0.6732
+Checkpoint 8 saved!
+
+Epoch 9/19
+--------------------
+train Loss: 0.6305 Acc: 0.6598
+val Loss: 0.7021 Acc: 0.6536
+Checkpoint 9 saved!
+
+Epoch 10/19
+--------------------
+train Loss: 0.6279 Acc: 0.6352
+val Loss: 0.6740 Acc: 0.6471
+Checkpoint 10 saved!
+
+Epoch 11/19
+--------------------
+train Loss: 0.6271 Acc: 0.6721
+val Loss: 0.6838 Acc: 0.6667
+Checkpoint 11 saved!
+
+Epoch 12/19
+--------------------
+train Loss: 0.6189 Acc: 0.6762
+val Loss: 0.7419 Acc: 0.6797
+Checkpoint 12 saved!
+
+Epoch 13/19
+--------------------
+train Loss: 0.6345 Acc: 0.6475
+val Loss: 0.7316 Acc: 0.6732
+Checkpoint 13 saved!
+
+Epoch 14/19
+--------------------
+train Loss: 0.6150 Acc: 0.6680
+val Loss: 0.6945 Acc: 0.6863
+Checkpoint 14 saved!
+
+Epoch 15/19
+--------------------
+train Loss: 0.6424 Acc: 0.6107
+val Loss: 0.7077 Acc: 0.6667
+Checkpoint 15 saved!
+
+Epoch 16/19
+--------------------
+train Loss: 0.6047 Acc: 0.6721
+val Loss: 0.6412 Acc: 0.6797
+Checkpoint 16 saved!
+
+Epoch 17/19
+--------------------
+train Loss: 0.6129 Acc: 0.6270
+val Loss: 0.6708 Acc: 0.6732
+Checkpoint 17 saved!
+
+Epoch 18/19
+--------------------
+train Loss: 0.6433 Acc: 0.6066
+val Loss: 0.6566 Acc: 0.6471
+Checkpoint 18 saved!
+
+Epoch 19/19
+--------------------
+train Loss: 0.6118 Acc: 0.6516
+val Loss: 0.6688 Acc: 0.6928
+Checkpoint 19 saved!
+
+Training complete in 8m 22s
+Best val Acc: 0.692810
