@@ -1,0 +1,13 @@
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.jpg
+*.pdf
+*.docx
+__pycache__/
+checkpoints/
