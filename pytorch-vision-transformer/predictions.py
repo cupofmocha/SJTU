@@ -21,7 +21,7 @@ def pred_and_plot_image(
     model: torch.nn.Module,
     class_names: List[str],
     image_path: str,
-    image_size: Tuple[int, int] = (224, 224),
+    image_size: Tuple[int, int] = (128, 128),
     transform: torchvision.transforms = None,
     device: torch.device = device,
 ):
@@ -80,4 +80,5 @@ def pred_and_plot_image(
         f"Pred: {class_names[target_image_pred_label]} | Prob: {target_image_pred_probs.max():.3f}"
     )
     plt.axis(False)
+    plt.show()
 

@@ -12,17 +12,23 @@ import argparse
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from pathlib import Path
+import engine
+import requests
+from predictions import pred_and_plot_image
 
 # Global variables
 data_dir = './train'
 test_dir = './test'
 dir_checkpoint = Path('./checkpoints/')
+IMG_SIZE = 128
+BATCH_SIZE = 8
+NUM_EPOCHS = 10
 
-def get_args():
-    parser = argparse.ArgumentParser(description='Predict object classifications after performing training')
-    parser.add_argument('--use-pretrained', '-u', action="store_true", help='Use Pretrained network')
-    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=3, help='Number of epochs to run')  
-    return parser.parse_args()
+# def get_args():
+#     parser = argparse.ArgumentParser(description='Predict object classifications after performing training')
+#     parser.add_argument('--use-pretrained', '-u', action="store_true", help='Use Pretrained network')
+#     parser.add_argument('--epochs', '-e', metavar='E', type=int, default=3, help='Number of epochs to run')  
+#     return parser.parse_args()
 
 
 NUM_WORKERS = os.cpu_count()
@@ -73,8 +79,7 @@ def set_seeds(seed: int=42):
         torch.manual_seed(seed)
         # Set the seed for CUDA torch operations (ones that happen on the GPU)
         torch.cuda.manual_seed(seed)
-# Create image size
-IMG_SIZE = 224
+
 
 # Create transform pipeline manually
 manual_transforms = transforms.Compose([
@@ -83,12 +88,9 @@ manual_transforms = transforms.Compose([
 ])           
 #print(f"Manually created transforms: {manual_transforms}")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-# device = torch.device('cpu') # use this for cpu
+# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device('cpu') # use this for cpu
 
-
-# Set the batch size
-BATCH_SIZE = 32 
 
 # Create data loaders
 train_dataloader, test_dataloader, class_names = create_dataloaders(
@@ -113,7 +115,7 @@ train_dataloader, test_dataloader, class_names
 class PatchEmbedding(nn.Module):
     def __init__(self, 
                  in_channels:int=3, # color channels, rgb
-                 patch_size:int=16,
+                 patch_size:int=8,
                  embedding_dim:int=768 # comes from 16*16*in_channels, so each patch after flattened has 768 different values
                  ):
         super().__init__()
@@ -220,8 +222,9 @@ class TransformerEncoderBlock(nn.Module):
 
     # Create forward method to link all the blocks together
     def forward(self, x):
-        x += self.msa_block(x)
-        x += self.mlp_block(x)
+        x = self.msa_block(x) + x
+
+        x = self.mlp_block(x) + x
         return x
 
 #region Create the final Visition Transformer (ViT-Base)
@@ -229,13 +232,13 @@ class TransformerEncoderBlock(nn.Module):
 class ViT(nn.Module):
     # Initialize the class with hyperparameters from Table 1 & 3
     def __init__(self,
-                 img_size:int=224, # Training resolution from Table 3 in ViT paper
+                 img_size:int=128, # Training resolution from Table 3 in ViT paper
                  in_channels:int=3, # Number of channels in input image
-                 patch_size:int=16,
-                 num_transformer_layers:int=12, # Layers from Table 1 for ViT-Base
-                 embedding_dim:int=768, # Hidden size D from Table 1 for ViT-Base
-                 mlp_size:int=3072, # MLP size from Table 1 for ViT-Base
-                 num_heads:int=12, # Heads from Table 1 for ViT-Base
+                 patch_size:int=8,
+                 num_transformer_layers:int=6, # Layers from Table 1 for ViT-Base
+                 embedding_dim:int=512, # Hidden size D from Table 1 for ViT-Base
+                 mlp_size:int=512, # MLP size from Table 1 for ViT-Base
+                 num_heads:int=4, # Heads from Table 1 for ViT-Base
                  attn_dropout:float=0, # Dropout for attention projection
                  mlp_dropout:float=0.1, # Dropout for dense/MLP layers 
                  embedding_dropout:float=0.1, # Dropout for patch and position embeddings
@@ -261,93 +264,100 @@ class ViT(nn.Module):
         self.patch_embedding = PatchEmbedding(in_channels=in_channels,
                                               patch_size=patch_size,
                                               embedding_dim=embedding_dim)
+        # Create Transformer Encoder blocks (stack Transformer Encoder blocks using nn.Sequential()) 
+        # Note: The "*" means "all"
+        self.transformer_encoder = nn.Sequential(*[TransformerEncoderBlock(embedding_dim=embedding_dim,
+                                                                            num_heads=num_heads,
+                                                                            mlp_size=mlp_size,
+                                                                            mlp_dropout=mlp_dropout) for _ in range(num_transformer_layers)])
+       
+        # Create classifier head (final layer that classifies the image type)
+        self.classifier = nn.Sequential(
+            nn.LayerNorm(normalized_shape=embedding_dim),
+            nn.Linear(in_features=embedding_dim, 
+                      out_features=num_classes) # output class contains num_classes of neurons
+        )
+    
+    # Create a forward() method
+    def forward(self, x):
+        
+        # Get batch size
+        batch_size = x.shape[0]
+        
+        # Create class token embedding and expand it to match the batch size (equation 1 in the Paper)
+        class_token = self.class_embedding.expand(batch_size, -1, -1) # "-1" means to infer the dimension
 
+        # Create patch embedding (equation 1)
+        x = self.patch_embedding(x)
+
+        # Concat class embedding and patch embedding (equation 1)
+        x = torch.cat((class_token, x), dim=1)
+
+        # Add position embedding to patch embedding (equation 1) 
+        x = self.position_embedding + x
+
+        # Run embedding dropout (Appendix B.1)
+        x = self.embedding_dropout(x)
+
+        # Pass patch, position and class embedding through transformer encoder layers (equations 2 & 3)
+        x = self.transformer_encoder(x)
+
+        # Put 0 index logit through classifier (equation 4)
+        x = self.classifier(x[:, 0]) # run on each sample in a batch at 0 index
+
+        return x       
 #endregion
-
 
 
 if __name__ == '__main__':
     ## Visualize an image to check whether dataloader is properly working
     # Get a batch of images
-    image_batch, label_batch = next(iter(train_dataloader))
+    # image_batch, label_batch = next(iter(train_dataloader))
 
     # Get a single image from the batch
-    image, label = image_batch[0], label_batch[0]
+    # image, label = image_batch[0], label_batch[0]
 
     # View the batch shapes
-    print(image.shape, label)
+    # print(image.shape, label)
     # Plot image with matplotlib
     # plt.imshow(image.permute(1, 2, 0)) # rearrange image dimensions to suit matplotlib [color_channels, height, width] -> [height, width, color_channels]
     # plt.title(class_names[label])
     # plt.axis(False)
     # plt.show()
 
-    #region Test PatchEmbedding layer
-    # patch_size =16
 
-    # set_seeds()
+    # Train our Model
 
-    # # Create an instance of patch embedding layer
-    # patchify = PatchEmbedding(in_channels=3,
-    #                         patch_size=16,
-    #                         embedding_dim=768)
+    # Create an instance of ViT with the number of classes we're working with (pizza, steak, sushi)
+    vit = ViT(num_classes=len(class_names))
 
-    # # Pass a single image through
-    # print(f"Input image shape: {image.unsqueeze(0).shape}")
-    # patch_embedded_image = patchify(image.unsqueeze(0)) # add an extra batch dimension on the 0th index, otherwise will error
-    # print(f"Output patch embedding shape: {patch_embedded_image.shape}")
-    #endregion
+    # Setup the optimizer to optimize our ViT model parameters using hyperparameters from the ViT paper 
+    optimizer = torch.optim.Adam(params=vit.parameters(), 
+                                lr=3e-3, # Base LR from Table 3 for ViT-* ImageNet-1k
+                                betas=(0.9, 0.999), # default values but also mentioned in ViT paper section 4.1 (Training & Fine-tuning)
+                                weight_decay=0.3) # from the ViT paper section 4.1 (Training & Fine-tuning) and Table 3 for ViT-* ImageNet-1k
 
-    #region Patch & Position Embedding
-    # Step 2: This is the "Patch + Position Embedding" step from the Paper
-    # Now add the the learnable class embedding and position embeddings
-    # From start to positional encoding: All in 1 cell
+    # Setup the loss function for multi-class classification
+    loss_fn = torch.nn.CrossEntropyLoss()
 
+    # Set the seeds
     set_seeds()
 
-    # 1. Set patch size
-    patch_size = 16
-
-    # 2. Print shape of original image tensor and get the image dimensions
-    print(f"Image tensor shape: {image.shape}")
-    height, width = image.shape[1], image.shape[2]
-
-    # 3. Get image tensor and add batch dimension
-    x = image.unsqueeze(0)
-    print(f"Input image with batch dimension shape: {x.shape}")
-
-    # 4. Create patch embedding layer
-    patch_embedding_layer = PatchEmbedding(in_channels=3,
-                                        patch_size=patch_size,
-                                        embedding_dim=768)
-
-    # 5. Pass image through patch embedding layer
-    patch_embedding = patch_embedding_layer(x)
-    print(f"Patching embedding shape: {patch_embedding.shape}")
-
-    # 6. Create class token embedding
-    batch_size = patch_embedding.shape[0]
-    embedding_dimension = patch_embedding.shape[-1] # 768
-    class_token = nn.Parameter(torch.ones(batch_size, 1, embedding_dimension),
-                            requires_grad=True) # make sure it's learnable
-    print(f"Class token embedding shape: {class_token.shape}")
-
-    # 7. Pre-pend class token embedding to patch embedding
-    patch_embedding_class_token = torch.cat((class_token, patch_embedding), dim=1)
-    print(f"Patch embedding with class token shape: {patch_embedding_class_token.shape}")
-
-    # 8. Create position embedding
-    number_of_patches = int((height * width) / patch_size**2)
-    position_embedding = nn.Parameter(torch.ones(1, number_of_patches+1, embedding_dimension),
-                                    requires_grad=True) # make sure it's learnable
-
-    # 9. Add position embedding to patch embedding with class token
-    patch_and_position_embedding = patch_embedding_class_token + position_embedding
-    print(f"Patch and position embedding shape: {patch_and_position_embedding.shape}")
-    #patch_and_position_embedding
-
-    print(patch_embedding_class_token)  #1 is added in the beginning of each
-    #endregion
-
-    transformer_encoder_block = TransformerEncoderBlock()
+    # Train the model and save the training results to a dictionary
+    results = engine.train(model=vit,
+                        train_dataloader=train_dataloader,
+                        test_dataloader=test_dataloader,
+                        optimizer=optimizer,
+                        loss_fn=loss_fn,
+                        epochs=NUM_EPOCHS,
+                        device=device)
     
+    # Make predictions
+    # Setup custom image path
+    custom_image_path = "test_img.jpg"
+
+    # Predict on custom image
+    pred_and_plot_image(model=vit,
+                        image_path=custom_image_path,
+                        class_names=class_names)
+        

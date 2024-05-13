@@ -6,8 +6,6 @@
 *.rar
 *.tar
 *.zip
-*.jpg
-*.png
 *.pdf
 *.docx
 __pycache__/
