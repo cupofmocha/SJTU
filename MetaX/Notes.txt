@@ -1,2 +1,0 @@
--Goal is to optimize the company's C500 gpu chip, meatric is the performance of it when running various AI models.
-
