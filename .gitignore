@@ -10,3 +10,4 @@
 *.docx
 __pycache__/
 checkpoints/
+MetaX/
