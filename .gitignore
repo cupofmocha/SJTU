@@ -8,6 +8,7 @@
 *.zip
 *.pdf
 *.docx
+*.keras
 __pycache__/
 checkpoints/
 MetaX/
